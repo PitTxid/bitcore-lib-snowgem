@@ -2833,6 +2833,12 @@ BufferReader.prototype.readUInt64LEBN = function() {
   return bn;
 };
 
+BufferReader.prototype.readUInt64LE = function() {
+  var val = this.buf.readUInt32LE(this.pos) + this.buf.readUInt32LE(this.pos + 4) * 0x100000000
+  this.pos = this.pos + 8;
+  return val;
+};
+
 BufferReader.prototype.readVarintNum = function() {
   var first = this.readUInt8();
   switch (first) {
@@ -3006,6 +3012,14 @@ BufferWriter.prototype.writeUInt64BEBN = function(bn) {
 BufferWriter.prototype.writeUInt64LEBN = function(bn) {
   var buf = bn.toBuffer({size: 8});
   this.writeReverse(buf);
+  return this;
+};
+
+BufferWriter.prototype.writeUInt64LE = function(n) {
+  var buf = Buffer.alloc(8);
+  buf.writeInt32LE(n & -1, 0);
+  buf.writeUInt32LE(Math.floor(n / 0x100000000), 4);
+  this.write(buf);
   return this;
 };
 
